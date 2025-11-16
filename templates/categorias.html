@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}Categorías - Gestor de Gastos{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="text-white mb-4">
+            <i class="fas fa-tags"></i> Gestión de Categorías
+        </h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-tag"></i> Nueva Categoría</span>
+                <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#modalCrearCategoria">
+                    <i class="fas fa-plus"></i> Agregar Categoría
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-list"></i> Lista de Categorías ({{ categorias|length }})
+            </div>
+            <div class="card-body">
+                {% if categorias %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Descripción</th>
+                                <th>Fecha</th>
+                                <th>Gastos</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for categoria in categorias %}
+                            <tr>
+                                <td><span class="badge bg-success">{{ categoria.id }}</span></td>
+                                <td><i class="fas fa-tag"></i> {{ categoria.nombre }}</td>
+                                <td>{{ categoria.descripcion or 'Sin descripción' }}</td>
+                                <td><i class="fas fa-calendar"></i> {{ categoria.fecha_creacion.strftime('%d/%m/%Y') }}</td>
+                                <td><span class="badge bg-info">{{ categoria.gastos|length }}</span></td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-warning" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#modalEditarCategoria{{ categoria.id }}">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <a href="{{ url_for('eliminar_categoria', id=categoria.id) }}" 
+                                       class="btn btn-sm btn-danger"
+                                       onclick="return confirm('¿Eliminar esta categoría?')">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            
+                            <!-- Modal Editar -->
+                            <div class="modal fade" id="modalEditarCategoria{{ categoria.id }}" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Editar Categoría</h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <form method="POST" action="{{ url_for('editar_categoria', id=categoria.id) }}">
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Nombre</label>
+                                                    <input type="text" class="form-control" name="nombre" 
+                                                           value="{{ categoria.nombre }}" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Descripción</label>
+                                                    <textarea class="form-control" name="descripcion" rows="3">{{ categoria.descripcion }}</textarea>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                <button type="submit" class="btn btn-warning">Guardar</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info text-center">
+                    <i class="fas fa-info-circle fa-3x mb-3"></i>
+                    <h5>No hay categorías</h5>
+                    <p>Crea una categoría para comenzar</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Crear Categoría -->
+<div class="modal fade" id="modalCrearCategoria" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Crear Nueva Categoría</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('crear_categoria') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" class="form-control" name="nombre" 
+                               placeholder="Ej: Comida, Transporte, etc." required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descripción (opcional)</label>
+                        <textarea class="form-control" name="descripcion" rows="3" 
+                                  placeholder="Describe esta categoría..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Crear</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

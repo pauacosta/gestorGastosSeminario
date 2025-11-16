@@ -1,0 +1,293 @@
+/* =============================================================
+   VARIABLES CSS - Colores principales del proyecto
+   ============================================================= */
+:root {
+    --primary-color: #6366f1;    /* Índigo */
+    --secondary-color: #8b5cf6;  /* Púrpura */
+    --success-color: #10b981;    /* Verde */
+    --danger-color: #ef4444;     /* Rojo */
+    --warning-color: #f59e0b;    /* Ámbar */
+}
+
+/* =============================================================
+   ESTILOS GENERALES
+   ============================================================= */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding-bottom: 50px;
+}
+
+/* =============================================================
+   BARRA DE NAVEGACIÓN
+   ============================================================= */
+.navbar {
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+    font-weight: bold;
+    color: var(--primary-color) !important;
+    font-size: 1.5rem;
+}
+
+.nav-link {
+    color: #4b5563 !important;
+    font-weight: 500;
+    transition: all 0.3s;
+    padding: 0.5rem 1rem !important;
+    border-radius: 8px;
+    margin: 0 0.2rem;
+}
+
+.nav-link:hover {
+    color: var(--primary-color) !important;
+    background: rgba(99, 102, 241, 0.1);
+}
+
+.nav-link.active {
+    background: var(--primary-color) !important;
+    color: white !important;
+}
+
+/* =============================================================
+   CONTENEDOR PRINCIPAL
+   ============================================================= */
+.container-custom {
+    max-width: 1200px;
+    margin: 2rem auto;
+}
+
+/* =============================================================
+   TARJETAS
+   ============================================================= */
+.card {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    background: white;
+    margin-bottom: 2rem;
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    font-weight: bold;
+    padding: 1.5rem;
+    border: none;
+}
+
+/* =============================================================
+   BOTONES
+   ============================================================= */
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border: none;
+    border-radius: 10px;
+    padding: 0.6rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4);
+}
+
+.btn-success {
+    background: var(--success-color);
+    border: none;
+    border-radius: 10px;
+}
+
+.btn-danger {
+    background: var(--danger-color);
+    border: none;
+    border-radius: 10px;
+}
+
+.btn-warning {
+    background: var(--warning-color);
+    border: none;
+    border-radius: 10px;
+}
+
+/* =============================================================
+   FORMULARIOS
+   ============================================================= */
+.form-control, .form-select {
+    border-radius: 10px;
+    border: 2px solid #e5e7eb;
+    padding: 0.7rem;
+    transition: all 0.3s;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25);
+}
+
+/* =============================================================
+   ALERTAS
+   ============================================================= */
+.alert {
+    border-radius: 12px;
+    border: none;
+    padding: 1rem 1.5rem;
+    animation: slideDown 0.5s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =============================================================
+   TABLAS
+   ============================================================= */
+.table {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.table thead {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+}
+
+.table tbody tr {
+    transition: background 0.3s;
+}
+
+.table tbody tr:hover {
+    background: rgba(99, 102, 241, 0.05);
+}
+
+/* =============================================================
+   MODALES
+   ============================================================= */
+.modal-content {
+    border-radius: 16px;
+    border: none;
+}
+
+.modal-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border-radius: 16px 16px 0 0;
+}
+
+/* =============================================================
+   BADGES
+   ============================================================= */
+.badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 500;
+}
+
+/* =============================================================
+   TARJETAS DE ESTADÍSTICAS
+   ============================================================= */
+.stats-card {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+}
+
+.stats-card .icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.stats-card h3 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    color: #1f2937;
+}
+
+.stats-card p {
+    color: #6b7280;
+    font-weight: 500;
+}
+
+/* =============================================================
+   PÁGINA DE LOGIN
+   ============================================================= */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 450px;
+    padding: 3rem;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.login-header i {
+    font-size: 4rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 1rem;
+}
+
+.login-header h2 {
+    color: #1f2937;
+    font-weight: bold;
+}
+
+.btn-login {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.1rem;
+    margin-top: 1rem;
+}

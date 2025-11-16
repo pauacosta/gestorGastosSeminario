@@ -1,27 +1,165 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Listado</title>
-</head>
-<body>
-    <h2>Listado de datos</h2>
+{% extends "base.html" %}
 
-    <table border="1">
-        <tr><th>ID</th><th>Categoría</th><th>Monto</th><th>Descripción</th></tr>
-        {% for r in records %}
-        <tr>
-            <td>{{ r.id }}</td>
-            <td>{{ r.category.name if r.category else '' }}</td>
-            <td>{{ r.amount }}</td>
-            <td>{{ r.description }}</td>
-        </tr>
-        {% endfor %}
-    </table>
+{% block title %}Lista de Gastos - Gestor de Gastos{% endblock %}
 
-    <p>
-        <a href="/form">Cargar nuevo</a> |
-        <a href="/home">Inicio</a>
-    </p>
-</body>
-</html>
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="text-white mb-4">
+            <i class="fas fa-list"></i> Lista de Gastos
+        </h1>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5 class="text-muted mb-2">Total de Gastos</h5>
+                <h2 class="mb-0"><i class="fas fa-receipt"></i> {{ gastos|length }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5 class="text-muted mb-2">Suma Total</h5>
+                <h2 class="mb-0 text-success">
+                    <i class="fas fa-dollar-sign"></i> {{ "%.2f"|format(total) }}
+                </h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-table"></i> Todos los Gastos</span>
+                <a href="{{ url_for('gastos') }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-plus"></i> Nuevo Gasto
+                </a>
+            </div>
+            <div class="card-body">
+                {% if gastos %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Fecha</th>
+                                <th>Categoría</th>
+                                <th>Monto</th>
+                                <th>Descripción</th>
+                                <th>Usuario</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for gasto in gastos %}
+                            <tr>
+                                <td><span class="badge bg-primary">{{ gasto.id }}</span></td>
+                                <td>
+                                    <i class="fas fa-calendar"></i> {{ gasto.fecha.strftime('%d/%m/%Y') }}<br>
+                                    <small class="text-muted">{{ gasto.fecha.strftime('%H:%M') }}</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-tag"></i> {{ gasto.categoria.nombre }}
+                                    </span>
+                                </td>
+                                <td><strong class="text-success">${{ "%.2f"|format(gasto.monto) }}</strong></td>
+                                <td>
+                                    {% if gasto.descripcion %}
+                                        {{ gasto.descripcion[:50] }}{% if gasto.descripcion|length > 50 %}...{% endif %}
+                                    {% else %}
+                                        <span class="text-muted">Sin descripción</span>
+                                    {% endif %}
+                                </td>
+                                <td><i class="fas fa-user"></i> {{ gasto.usuario.username }}</td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-info text-white" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#modalDetalle{{ gasto.id }}">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <a href="{{ url_for('eliminar_gasto', id=gasto.id) }}" 
+                                       class="btn btn-sm btn-danger"
+                                       onclick="return confirm('¿Eliminar este gasto?')">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            
+                            <!-- Modal Detalle -->
+                            <div class="modal fade" id="modalDetalle{{ gasto.id }}" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Detalle del Gasto #{{ gasto.id }}</h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="row mb-3">
+                                                <div class="col-6">
+                                                    <strong>Fecha:</strong><br>
+                                                    {{ gasto.fecha.strftime('%d/%m/%Y %H:%M') }}
+                                                </div>
+                                                <div class="col-6 text-end">
+                                                    <strong>Monto:</strong><br>
+                                                    <span class="h4 text-success">${{ "%.2f"|format(gasto.monto) }}</span>
+                                                </div>
+                                            </div>
+                                            <hr>
+                                            <div class="mb-3">
+                                                <strong>Categoría:</strong><br>
+                                                <span class="badge bg-success">{{ gasto.categoria.nombre }}</span>
+                                            </div>
+                                            <hr>
+                                            <div class="mb-3">
+                                                <strong>Descripción:</strong><br>
+                                                {{ gasto.descripcion or 'Sin descripción' }}
+                                            </div>
+                                            <hr>
+                                            <div>
+                                                <strong>Usuario:</strong><br>
+                                                {{ gasto.usuario.username }} ({{ gasto.usuario.email }})
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                            <a href="{{ url_for('eliminar_gasto', id=gasto.id) }}" 
+                                               class="btn btn-danger"
+                                               onclick="return confirm('¿Eliminar?')">
+                                                <i class="fas fa-trash"></i> Eliminar
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr class="table-light">
+                                <td colspan="3" class="text-end"><strong>TOTAL:</strong></td>
+                                <td><strong class="text-success h5">${{ "%.2f"|format(total) }}</strong></td>
+                                <td colspan="3"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info text-center">
+                    <i class="fas fa-info-circle fa-3x mb-3"></i>
+                    <h5>No hay gastos registrados</h5>
+                    <a href="{{ url_for('gastos') }}" class="btn btn-primary mt-3">
+                        <i class="fas fa-plus"></i> Registrar Primer Gasto
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
