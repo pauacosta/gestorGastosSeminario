@@ -1,0 +1,634 @@
+# 📖 GUÍA DEL CÓDIGO - Para Estudiantes
+
+Esta guía explica **cómo funciona el código** del proyecto de forma simple y directa.
+
+---
+
+## 📑 Índice
+
+1. [app.py - La Aplicación Principal](#1-apppy---la-aplicación-principal)
+2. [models.py - Las Tablas de la Base de Datos](#2-modelspy---las-tablas-de-la-base-de-datos)
+3. [templates - Las Páginas HTML](#3-templates---las-páginas-html)
+4. [static/style.css - Los Estilos](#4-staticstylecss---los-estilos)
+5. [Flujo Completo: ¿Qué pasa cuando...?](#5-flujo-completo-qué-pasa-cuando)
+
+---
+
+## 1. app.py - La Aplicación Principal
+
+Este archivo es el **cerebro** de la aplicación. Controla todo.
+
+### 🔧 Configuración Inicial
+
+```python
+from flask import Flask, render_template, request, redirect, url_for, flash, session
+from models import db, Usuario, Categoria, Gasto
+
+# Crear la app
+app = Flask(__name__)
+
+# Configuraciones importantes
+app.config['SECRET_KEY'] = 'tu_clave_secreta_aqui'  # Para las sesiones
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'  # Ubicación de la BD
+```
+
+**¿Qué hace esto?**
+- Crea la aplicación Flask
+- Define dónde está la base de datos (archivo `database.db`)
+- La SECRET_KEY es para encriptar las sesiones
+
+### 🔒 Crear el Usuario Admin
+
+```python
+with app.app_context():
+    db.create_all()  # Crea las tablas si no existen
+    
+    # Crear usuario admin si no existe
+    usuario_admin = Usuario.query.filter_by(username='admin').first()
+    if not usuario_admin:
+        admin = Usuario(username='admin', email='admin@example.com')
+        admin.set_password('admin123')
+        db.session.add(admin)
+        db.session.commit()
+```
+
+**¿Qué hace esto?**
+- Crea las 3 tablas (usuarios, categorias, gastos)
+- Si no existe el usuario "admin", lo crea
+- La contraseña se guarda **encriptada** (no en texto plano)
+
+### 🛡️ Decorador para Proteger Rutas
+
+```python
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:  # ¿Hay usuario logueado?
+            flash('Debes iniciar sesión', 'warning')
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
+```
+
+**¿Qué hace esto?**
+- Es un "candado" para las páginas
+- Si no estás logueado → te manda al login
+- Uso: `@login_required` antes de cada función
+
+### 🚪 Rutas Principales
+
+#### Login (Inicio de Sesión)
+
+```python
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':  # Si envió el formulario
+        username = request.form.get('username')
+        password = request.form.get('password')
+        
+        # Buscar el usuario en la BD
+        usuario = Usuario.query.filter_by(username=username).first()
+        
+        # Verificar contraseña
+        if usuario and usuario.check_password(password):
+            session['user_id'] = usuario.id  # Guardar en sesión
+            session['username'] = usuario.username
+            flash(f'¡Bienvenido {username}!', 'success')
+            return redirect(url_for('home'))
+        else:
+            flash('Usuario o contraseña incorrectos', 'danger')
+    
+    return render_template('login.html')  # Mostrar formulario
+```
+
+**Flujo:**
+1. Usuario envía username y password
+2. Busca en la BD
+3. Si existe y la contraseña es correcta → guarda en sesión
+4. Si no → muestra error
+
+#### Crear Gasto (CON VALIDACIÓN)
+
+```python
+@app.route('/gastos/crear', methods=['POST'])
+@login_required
+def crear_gasto():
+    categoria_id = request.form.get('categoria_id')
+    monto = request.form.get('monto')
+    descripcion = request.form.get('descripcion', '')
+    
+    # ⚠️ VALIDACIÓN 1: Categoría obligatoria
+    if not categoria_id:
+        flash('Debes seleccionar una categoría', 'danger')
+        return redirect(url_for('gastos'))
+    
+    # ⚠️ VALIDACIÓN 2: Monto válido
+    try:
+        monto = float(monto)
+        if monto <= 0:
+            raise ValueError
+    except (ValueError, TypeError):
+        flash('El monto debe ser positivo', 'danger')
+        return redirect(url_for('gastos'))
+    
+    # Crear el gasto
+    nuevo_gasto = Gasto(
+        categoria_id=categoria_id,
+        monto=monto,
+        descripcion=descripcion,
+        usuario_id=session['user_id']
+    )
+    
+    db.session.add(nuevo_gasto)
+    db.session.commit()
+    
+    flash('Gasto registrado exitosamente', 'success')
+    return redirect(url_for('lista_gastos'))
+```
+
+**Lo importante:**
+- ✅ Valida que la categoría NO esté vacía
+- ✅ Valida que el monto sea un número positivo
+- ✅ Asocia el gasto al usuario actual (`session['user_id']`)
+
+### 📊 Patrón de ABM (Crear, Editar, Eliminar)
+
+**CREAR:**
+```python
+@app.route('/categorias/crear', methods=['POST'])
+@login_required
+def crear_categoria():
+    nombre = request.form.get('nombre')
+    
+    # Verificar que no exista
+    if Categoria.query.filter_by(nombre=nombre).first():
+        flash('La categoría ya existe', 'danger')
+        return redirect(url_for('categorias'))
+    
+    # Crear nueva
+    nueva = Categoria(nombre=nombre)
+    db.session.add(nueva)
+    db.session.commit()
+    
+    flash('Categoría creada', 'success')
+    return redirect(url_for('categorias'))
+```
+
+**EDITAR:**
+```python
+@app.route('/categorias/editar/<int:id>', methods=['POST'])
+@login_required
+def editar_categoria(id):
+    categoria = Categoria.query.get_or_404(id)  # Buscar
+    
+    categoria.nombre = request.form.get('nombre')  # Actualizar
+    db.session.commit()  # Guardar
+    
+    flash('Categoría actualizada', 'success')
+    return redirect(url_for('categorias'))
+```
+
+**ELIMINAR:**
+```python
+@app.route('/categorias/eliminar/<int:id>')
+@login_required
+def eliminar_categoria(id):
+    categoria = Categoria.query.get_or_404(id)
+    
+    # Validar que no tenga gastos
+    if categoria.gastos:
+        flash('No se puede eliminar, tiene gastos asociados', 'danger')
+        return redirect(url_for('categorias'))
+    
+    db.session.delete(categoria)
+    db.session.commit()
+    
+    flash('Categoría eliminada', 'success')
+    return redirect(url_for('categorias'))
+```
+
+---
+
+## 2. models.py - Las Tablas de la Base de Datos
+
+Este archivo define las **tablas** como clases de Python.
+
+### 👤 Modelo Usuario
+
+```python
+class Usuario(db.Model):
+    __tablename__ = 'usuarios'
+    
+    # Columnas
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password_hash = db.Column(db.String(200), nullable=False)
+    fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relación: Un usuario tiene muchos gastos
+    gastos = db.relationship('Gasto', backref='usuario', lazy=True, 
+                            cascade='all, delete-orphan')
+```
+
+**Columnas importantes:**
+- `primary_key=True` → Es el ID único
+- `unique=True` → No puede haber duplicados
+- `nullable=False` → Es obligatorio
+
+**Métodos importantes:**
+
+```python
+def set_password(self, password):
+    """Guarda la contraseña encriptada"""
+    self.password_hash = generate_password_hash(password)
+
+def check_password(self, password):
+    """Verifica si la contraseña es correcta"""
+    return check_password_hash(self.password_hash, password)
+```
+
+### 🏷️ Modelo Categoría
+
+```python
+class Categoria(db.Model):
+    __tablename__ = 'categorias'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(100), unique=True, nullable=False)
+    descripcion = db.Column(db.String(200))
+    fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relación: Una categoría tiene muchos gastos
+    gastos = db.relationship('Gasto', backref='categoria', lazy=True)
+```
+
+### 💵 Modelo Gasto
+
+```python
+class Gasto(db.Model):
+    __tablename__ = 'gastos'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    monto = db.Column(db.Float, nullable=False)
+    descripcion = db.Column(db.String(200))
+    fecha = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Claves foráneas (conectan con otras tablas)
+    categoria_id = db.Column(db.Integer, db.ForeignKey('categorias.id'), 
+                            nullable=False)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), 
+                          nullable=False)
+```
+
+**Relaciones:**
+```
+Usuario (1) ----< Gasto (N)  →  usuario.gastos
+Categoría (1) ----< Gasto (N)  →  categoria.gastos
+
+Gasto pertenece a:
+  - gasto.usuario
+  - gasto.categoria
+```
+
+---
+
+## 3. templates - Las Páginas HTML
+
+### 📄 base.html - La Plantilla Madre
+
+```html
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <title>{% block title %}Gestor de Gastos{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Nuestro CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- Navbar (solo si está logueado) -->
+    {% if session.user_id %}
+    <nav>...</nav>
+    {% endif %}
+    
+    <!-- Mensajes flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+    
+    <!-- Contenido que cambia -->
+    {% block content %}{% endblock %}
+</body>
+</html>
+```
+
+**Conceptos clave:**
+- `{% block title %}` → Otras páginas pueden cambiar el título
+- `{% if session.user_id %}` → Solo muestra navbar si está logueado
+- `{% block content %}` → Aquí va el contenido de cada página
+
+### 📝 form.html - Formulario de Gastos
+
+```html
+{% extends "base.html" %}
+
+{% block content %}
+<form method="POST" action="{{ url_for('crear_gasto') }}" id="formGasto">
+    
+    <!-- Categoría (OBLIGATORIO) -->
+    <select name="categoria_id" required>
+        <option value="">-- Selecciona --</option>
+        {% for categoria in categorias %}
+        <option value="{{ categoria.id }}">{{ categoria.nombre }}</option>
+        {% endfor %}
+    </select>
+    
+    <!-- Monto -->
+    <input type="number" name="monto" step="0.01" required>
+    
+    <!-- Descripción (opcional) -->
+    <textarea name="descripcion"></textarea>
+    
+    <button type="submit">Guardar</button>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Validación JavaScript (nivel 2)
+document.getElementById('formGasto').addEventListener('submit', function(e) {
+    const categoria = document.getElementById('categoria_id').value;
+    
+    if (!categoria) {
+        e.preventDefault();  // Detener el envío
+        alert('⚠️ Debes seleccionar una categoría');
+        return false;
+    }
+});
+</script>
+{% endblock %}
+```
+
+**3 niveles de validación:**
+1. `required` en HTML → El navegador valida
+2. JavaScript antes de enviar → Validación extra
+3. Python en el servidor → La definitiva
+
+---
+
+## 4. static/style.css - Los Estilos
+
+### 🎨 Variables CSS
+
+```css
+:root {
+    --primary-color: #6366f1;    /* Morado/Índigo */
+    --secondary-color: #8b5cf6;  /* Púrpura */
+    --success-color: #10b981;    /* Verde */
+}
+```
+
+**Uso:** `background: var(--primary-color);`
+
+### 📦 Estilos de Tarjetas
+
+```css
+.card {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);  /* Se eleva al pasar mouse */
+}
+```
+
+### 🎭 Animaciones
+
+```css
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);  /* Arriba */
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);      /* Posición normal */
+    }
+}
+
+.alert {
+    animation: slideDown 0.5s ease;
+}
+```
+
+---
+
+## 5. Flujo Completo: ¿Qué pasa cuando...?
+
+### 🔐 Hago login?
+
+```
+1. Usuario ingresa datos en login.html
+   ↓
+2. POST → app.py → def login()
+   ↓
+3. Usuario.query.filter_by(username=...).first()
+   ↓ (busca en database.db)
+4. usuario.check_password(password)
+   ↓ (compara hash)
+5. session['user_id'] = usuario.id
+   ↓ (guarda en sesión)
+6. redirect → home.html
+```
+
+### 💵 Creo un gasto?
+
+```
+1. Usuario llena form.html
+   ↓
+2. JavaScript valida (categoría no vacía)
+   ↓
+3. POST → app.py → def crear_gasto()
+   ↓
+4. Python valida (categoría y monto)
+   ↓
+5. nuevo_gasto = Gasto(...)
+   ↓
+6. db.session.add(nuevo_gasto)
+   ↓
+7. db.session.commit() → Guarda en database.db
+   ↓
+8. redirect → list.html
+```
+
+### 📊 Veo la lista de gastos?
+
+```
+1. Usuario hace clic en "Lista"
+   ↓
+2. GET → app.py → def lista_gastos()
+   ↓
+3. gastos = Gasto.query.order_by(Gasto.fecha.desc()).all()
+   ↓ (consulta a database.db)
+4. total = sum(gastos.monto)
+   ↓
+5. render_template('list.html', gastos=gastos, total=total)
+   ↓
+6. Jinja2 procesa el HTML
+   ↓
+7. Navegador muestra la tabla
+```
+
+### 🗑️ Elimino una categoría?
+
+```
+1. Usuario hace clic en "Eliminar"
+   ↓
+2. confirm() de JavaScript → ¿Confirmas?
+   ↓ (Si dice OK)
+3. GET → app.py → def eliminar_categoria(id)
+   ↓
+4. categoria = Categoria.query.get_or_404(id)
+   ↓
+5. if categoria.gastos: → ERROR (tiene gastos)
+   else: → OK (eliminar)
+   ↓
+6. db.session.delete(categoria)
+   ↓
+7. db.session.commit()
+   ↓
+8. flash('Categoría eliminada')
+   ↓
+9. redirect → categorias.html
+```
+
+---
+
+## 🎯 Puntos Clave para Explicar
+
+### 1. Las Rutas (app.py)
+```python
+@app.route('/ruta')  # Define la URL
+def funcion():       # Código que se ejecuta
+    return resultado # Lo que muestra
+```
+
+### 2. Las Queries (Consultas a BD)
+```python
+# Obtener todos
+usuarios = Usuario.query.all()
+
+# Buscar por campo
+usuario = Usuario.query.filter_by(username='admin').first()
+
+# Obtener por ID
+usuario = Usuario.query.get(1)
+
+# Obtener o error 404
+usuario = Usuario.query.get_or_404(1)
+```
+
+### 3. Sesiones
+```python
+# Guardar
+session['user_id'] = 1
+
+# Leer
+user_id = session['user_id']
+
+# Verificar si existe
+if 'user_id' in session:
+    print("Está logueado")
+
+# Borrar todo
+session.clear()
+```
+
+### 4. Templates (Jinja2)
+```html
+<!-- Variables -->
+{{ usuario.username }}
+
+<!-- Condicionales -->
+{% if usuario %}
+    <p>Hola {{ usuario.username }}</p>
+{% else %}
+    <p>No hay usuario</p>
+{% endif %}
+
+<!-- Loops -->
+{% for gasto in gastos %}
+    <li>{{ gasto.monto }}</li>
+{% endfor %}
+```
+
+### 5. Formularios
+```html
+<!-- HTML -->
+<form method="POST" action="{{ url_for('crear_gasto') }}">
+    <input type="text" name="monto">
+    <button type="submit">Enviar</button>
+</form>
+
+<!-- Python -->
+@app.route('/gastos/crear', methods=['POST'])
+def crear_gasto():
+    monto = request.form.get('monto')  # Obtiene el valor
+    # ... proceso ...
+    return redirect(url_for('lista_gastos'))
+```
+
+---
+
+## 💡 Tips para Entender el Código
+
+1. **Empieza por las rutas** - Son las URLs que ves en el navegador
+2. **Sigue el flujo** - Usuario → Formulario → Route → BD → Template
+3. **Las relaciones son clave** - Usuario tiene muchos Gastos
+4. **Session = memoria temporal** - Guarda quién está logueado
+5. **Flash = mensajes temporales** - Se muestran una sola vez
+
+---
+
+## 🐛 Errores Comunes y Soluciones
+
+### Error: "Working outside of application context"
+**Solución:** Usa `with app.app_context():`
+
+### Error: "No such table: usuarios"
+**Solución:** Ejecuta `db.create_all()` dentro de `app_context`
+
+### Error: "TemplateNotFound: home.html"
+**Solución:** Verifica que el archivo esté en `templates/home.html`
+
+### Error: "Unauthorized"
+**Solución:** Agrega `@login_required` a la ruta
+
+---
+
+## 📚 Resumen Final
+
+| Archivo | Qué hace |
+|---------|----------|
+| **app.py** | Define rutas, maneja formularios, conecta todo |
+| **models.py** | Define tablas (Usuario, Categoria, Gasto) |
+| **base.html** | Template base con navbar |
+| **form.html** | Formulario para crear gastos |
+| **list.html** | Muestra todos los gastos |
+| **style.css** | Todos los estilos visuales |
+
+**Flujo básico:**
+```
+Usuario → HTML → Route → BD → Template → Usuario
+```
+
+---
