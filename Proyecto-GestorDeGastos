@@ -1,0 +1,348 @@
+# 💰 Gestor de Gastos Personales
+
+Sistema web para gestionar gastos con categorías y múltiples usuarios. Proyecto desarrollado con Flask y SQLite.
+
+---
+
+## 📖 ¿Qué hace esta aplicación?
+
+Esta aplicación te permite:
+- 👤 Crear y gestionar usuarios
+- 🏷️ Crear categorías personalizadas (Comida, Transporte, etc.)
+- 💵 Registrar gastos asignándolos a una categoría
+- 📊 Ver el total de gastos y estadísticas
+- 🔒 Sistema de login seguro con contraseñas encriptadas
+
+---
+
+## 🛠️ Tecnologías Usadas
+
+| Tecnología | ¿Para qué sirve? |
+|------------|------------------|
+| **Python 3** | Lenguaje de programación principal |
+| **Flask** | Framework web (crea las páginas y rutas) |
+| **SQLAlchemy** | Maneja la base de datos con Python |
+| **SQLite** | Base de datos (archivo database.db) |
+| **Bootstrap 5** | Estilos CSS modernos |
+| **HTML/CSS/JS** | Frontend (lo que ves en el navegador) |
+
+---
+
+## 📁 Estructura del Proyecto
+
+```
+gestorGastosSeminario/
+│
+├── app.py                    # 🧠 Cerebro: rutas y lógica
+├── models.py                 # 📦 Modelos: define las tablas
+├── requirements.txt          # 📋 Lista de librerías necesarias
+├── database.db              # 💾 Base de datos (se crea sola)
+│
+├── static/
+│   └── style.css            # 🎨 Estilos CSS
+│
+└── templates/               # 📄 Páginas HTML
+    ├── base.html           # Plantilla base (navbar)
+    ├── login.html          # Página de inicio de sesión
+    ├── home.html           # Dashboard principal
+    ├── usuarios.html       # Gestión de usuarios
+    ├── categorias.html     # Gestión de categorías
+    ├── form.html           # Formulario para gastos
+    └── list.html           # Lista de gastos
+```
+
+---
+
+## 🚀 Instalación Rápida
+
+### 1. Clona el repositorio
+```bash
+git clone https://github.com/pauacosta/gestorGastosSeminario.git
+cd gestorGastosSeminario
+```
+
+### 2. Crea un entorno virtual
+```bash
+python -m venv .venv
+
+# En Windows:
+.venv\Scripts\activate
+
+# En Linux/Mac:
+source .venv/bin/activate
+```
+
+### 3. Instala las dependencias
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Ejecuta la aplicación
+```bash
+python app.py
+```
+
+### 5. Abre tu navegador
+```
+http://localhost:5000
+```
+
+### 6. Inicia sesión
+- **Usuario:** `admin`
+- **Contraseña:** `admin123`
+
+---
+
+## 🎯 Funcionalidades Principales
+
+### 1️⃣ Sistema de Login
+- Inicio de sesión con usuario y contraseña
+- Las contraseñas se guardan **encriptadas** (seguras)
+- Solo usuarios logueados pueden acceder
+
+### 2️⃣ Gestión de Usuarios (ABM)
+- ➕ **Crear** usuarios nuevos
+- ✏️ **Editar** usuarios existentes
+- 🗑️ **Eliminar** usuarios (excepto el tuyo)
+- 👁️ Ver cuántos gastos tiene cada usuario
+
+### 3️⃣ Gestión de Categorías (ABM)
+- ➕ **Crear** categorías (Ej: Comida, Transporte)
+- ✏️ **Editar** nombre y descripción
+- 🗑️ **Eliminar** (solo si no tiene gastos)
+- 📊 Ver cuántos gastos tiene cada categoría
+
+### 4️⃣ Gestión de Gastos
+- ➕ **Crear** gastos con monto y descripción
+- ⚠️ **Validación obligatoria** de categoría (no puedes crear un gasto sin categoría)
+- 📋 **Ver lista completa** de todos los gastos
+- 💰 **Suma total** automática
+- 🗑️ **Eliminar** gastos
+
+---
+
+## 🔑 Conceptos Importantes
+
+### ¿Qué es Flask?
+Flask es un **framework web** de Python. Te permite crear páginas web fácilmente.
+
+**Ejemplo:**
+```python
+@app.route('/home')  # Define la URL
+def home():          # Función que se ejecuta
+    return "Hola"    # Lo que muestra
+```
+
+### ¿Qué es SQLAlchemy?
+Es una herramienta que te permite trabajar con bases de datos usando Python en lugar de SQL.
+
+**Sin SQLAlchemy (SQL):**
+```sql
+SELECT * FROM usuarios WHERE username = 'admin';
+```
+
+**Con SQLAlchemy (Python):**
+```python
+usuario = Usuario.query.filter_by(username='admin').first()
+```
+
+### ¿Qué es ABM?
+**A**lta, **B**aja, **M**odificación = Crear, Eliminar, Editar
+
+### ¿Cómo funciona la base de datos?
+
+Tenemos 3 tablas conectadas:
+
+```
+Usuario (1) ----< Gastos (Muchos)
+    |
+    |- id
+    |- username
+    |- email
+    |- password_hash
+    
+Gasto
+    |- id
+    |- monto
+    |- descripcion
+    |- fecha
+    |- usuario_id  (conecta con Usuario)
+    |- categoria_id (conecta con Categoria)
+
+Categoría (1) ----< Gastos (Muchos)
+    |
+    |- id
+    |- nombre
+    |- descripcion
+```
+
+**Relación:** Un usuario puede tener **muchos** gastos. Un gasto pertenece a **un solo** usuario.
+
+---
+
+## 🎨 Características de la UI
+
+- ✅ Diseño moderno con gradientes
+- ✅ Responsive (funciona en móviles)
+- ✅ Animaciones suaves
+- ✅ Iconos Font Awesome
+- ✅ Colores profesionales
+- ✅ Mensajes flash informativos
+- ✅ Modales para editar sin cambiar de página
+
+---
+
+## 🔒 Seguridad
+
+### Contraseñas Encriptadas
+Las contraseñas NO se guardan en texto plano. Usamos **hashing**:
+
+```python
+# Al crear usuario:
+admin.set_password('admin123')  
+# Guarda: $pbkdf2-sha256$260000$...
+
+# Al hacer login:
+usuario.check_password('admin123')  
+# Compara el hash, NO la contraseña
+```
+
+### Sesiones
+Usamos **sesiones** de Flask para saber quién está logueado:
+
+```python
+session['user_id'] = usuario.id
+session['username'] = usuario.username
+```
+
+### Protección de Rutas
+El decorador `@login_required` protege las páginas:
+
+```python
+@app.route('/home')
+@login_required  # Solo acceden usuarios logueados
+def home():
+    return render_template('home.html')
+```
+
+---
+
+## ⚠️ Validación de Categoría Obligatoria
+
+Esta es una característica **clave** del proyecto. La validación se hace en **3 niveles**:
+
+### Nivel 1: HTML5
+```html
+<select name="categoria_id" required>
+```
+El navegador no deja enviar el formulario si está vacío.
+
+### Nivel 2: JavaScript
+```javascript
+if (!categoriaId) {
+    alert('Debes seleccionar una categoría');
+    return false;
+}
+```
+Validación adicional antes de enviar.
+
+### Nivel 3: Python (Servidor)
+```python
+if not categoria_id:
+    flash('Debes seleccionar una categoría', 'danger')
+    return redirect(url_for('gastos'))
+```
+**Esta es la más importante.** Nunca confíes solo en el cliente.
+
+---
+
+## 🎓 Cómo Explicar el Proyecto
+
+### Introducción (30 segundos)
+> "Es un gestor de gastos personales donde puedes crear usuarios, categorías y registrar gastos. Lo importante es que tiene validación obligatoria de categorías en 3 niveles: HTML, JavaScript y Python."
+
+### Demostración (2 minutos)
+1. Mostrar el login
+2. Crear una categoría (Ej: "Comida")
+3. Intentar crear un gasto sin categoría → Mostrar el error
+4. Crear un gasto correctamente
+5. Mostrar la lista con el total
+
+### Aspectos Técnicos (1 minuto)
+> "Usa Flask para el backend, SQLite para la base de datos y Bootstrap para el frontend. Las contraseñas están encriptadas con Werkzeug y tiene 3 tablas relacionadas: Usuarios, Categorías y Gastos."
+
+---
+
+## 🐛 Solución de Problemas
+
+### Error: "No module named 'flask'"
+```bash
+pip install -r requirements.txt
+```
+
+### Error: "TemplateNotFound"
+Verifica que la carpeta `templates/` tenga todos los archivos HTML.
+
+### No puedo hacer login
+1. Borra `database.db`
+2. Ejecuta `python app.py` de nuevo
+3. Usuario: `admin` / Contraseña: `admin123`
+
+### Los estilos no se ven
+Verifica que:
+1. Existe la carpeta `static/`
+2. Existe el archivo `static/style.css`
+3. En `base.html` está: `<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">`
+
+---
+
+## 📚 Archivos Principales Explicados
+
+### app.py
+- Define todas las **rutas** (URLs)
+- Maneja el **login** y **sesiones**
+- Procesa los **formularios**
+- Se comunica con la **base de datos**
+
+### models.py
+- Define las **tablas** como clases de Python
+- `Usuario`: guarda users
+- `Categoria`: guarda categorías
+- `Gasto`: guarda los gastos
+
+### templates/base.html
+- Plantilla **base** que usan todas las páginas
+- Tiene el **navbar** y los **estilos**
+- Otras páginas la **extienden** con `{% extends "base.html" %}`
+
+### static/style.css
+- Todos los **estilos** visuales
+- Colores, gradientes, animaciones
+- Separado del HTML para mejor organización
+
+---
+
+## 🎯 Lo Más Importante
+
+1. **Validación triple de categorías** - Es el punto fuerte del proyecto
+2. **Relaciones de base de datos** - Uno a muchos bien implementadas
+3. **Seguridad** - Contraseñas hasheadas, rutas protegidas
+4. **UI moderna** - Se ve profesional con Bootstrap y CSS personalizado
+5. **Código limpio** - Comentado y fácil de entender
+
+---
+
+## 📞 Contacto
+
+- **GitHub:** [pauacosta](https://github.com/pauacosta)
+- **Repositorio:** [gestorGastosSeminario](https://github.com/pauacosta/gestorGastosSeminario)
+
+---
+
+## 📄 Licencia
+
+Este proyecto es de código abierto y está disponible para uso educativo.
+
+---
+
+**¡Hecho con ❤️ para aprender desarrollo web!** 🚀
