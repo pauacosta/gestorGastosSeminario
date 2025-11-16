@@ -56,7 +56,7 @@ git init
 git add .
 git commit -m "Primer commit - gestor con Flask y SQLite"
 git branch -M main
-git remote add origin https://github.com/TU-USUARIO/TU-REPO.git
+git remote add origin https://github.com/pauacosta/gestorGastosSeminario.git
 git push -u origin main
 ```
 
@@ -68,7 +68,7 @@ En la VM:
 sudo apt update
 sudo apt install -y git python3 python3-venv python3-pip
 
-git clone https://github.com/TU-USUARIO/TU-REPO.git
+git clone https://github.com/pauacosta/gestorGastosSeminario.git
 cd TU-REPO
 
 python3 -m venv .venv
