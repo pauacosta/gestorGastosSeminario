@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Cargar dato</title>
+</head>
+<body>
+    <h2>Cargar dato</h2>
+
+    {% if error %}<p style="color:red;">{{ error }}</p>{% endif %}
+
+    <form method="POST">
+        <label>Categoría:
+            <select name="category">
+                {% for c in categories %}
+                    <option value="{{ c.id }}">{{ c.name }}</option>
+                {% endfor %}
+            </select>
+        </label><br>
+
+        <label>Monto:
+            <input type="number" step="0.01" name="amount" required>
+        </label><br>
+
+        <label>Descripción:
+            <input type="text" name="description">
+        </label><br>
+
+        <button type="submit">Guardar</button>
+    </form>
+
+    <p>
+        <a href="/list">Ver listado</a> |
+        <a href="/home">Inicio</a>
+    </p>
+</body>
+</html>

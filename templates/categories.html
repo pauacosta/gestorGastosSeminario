@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Categorías</title>
+</head>
+<body>
+    <h2>ABM Categorías</h2>
+
+    {% if error %}<p style="color:red;">{{ error }}</p>{% endif %}
+
+    <form method="POST">
+        <label>Nombre:
+            <input type="text" name="name" required>
+        </label>
+        <button type="submit">Agregar</button>
+    </form>
+
+    <h3>Listado de categorías</h3>
+    <table border="1">
+        <tr><th>ID</th><th>Nombre</th><th>Acciones</th></tr>
+        {% for c in categories %}
+        <tr>
+            <td>{{ c.id }}</td>
+            <td>{{ c.name }}</td>
+            <td><a href="/categories/delete/{{ c.id }}">Eliminar</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <p><a href="/home">Volver al inicio</a></p>
+</body>
+</html>

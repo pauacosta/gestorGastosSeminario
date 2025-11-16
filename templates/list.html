@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Listado</title>
+</head>
+<body>
+    <h2>Listado de datos</h2>
+
+    <table border="1">
+        <tr><th>ID</th><th>Categoría</th><th>Monto</th><th>Descripción</th></tr>
+        {% for r in records %}
+        <tr>
+            <td>{{ r.id }}</td>
+            <td>{{ r.category.name if r.category else '' }}</td>
+            <td>{{ r.amount }}</td>
+            <td>{{ r.description }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <p>
+        <a href="/form">Cargar nuevo</a> |
+        <a href="/home">Inicio</a>
+    </p>
+</body>
+</html>

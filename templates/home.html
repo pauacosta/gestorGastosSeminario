@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Inicio</title>
+</head>
+<body>
+    <h2>Menú principal</h2>
+    <p>Usuario logueado: {{ session['user'] }}</p>
+    <ul>
+        <li><a href="/form">Cargar dato</a></li>
+        <li><a href="/list">Ver listado</a></li>
+        <li><a href="/categories">ABM categorías</a></li>
+        <li><a href="/users">ABM usuarios</a></li>
+        <li><a href="/logout">Cerrar sesión</a></li>
+    </ul>
+</body>
+</html>
