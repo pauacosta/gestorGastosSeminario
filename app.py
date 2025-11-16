@@ -20,7 +20,16 @@ bcrypt = Bcrypt(app)
 with app.app_context():
     db.create_all()
 
+    # Crear usuario admin por defecto si no existe ninguno
+    if User.query.count() == 0:
+        default_email = "admin@admin.com"
+        default_password = bcrypt.generate_password_hash("admin").decode("utf-8")
 
+        admin_user = User(email=default_email, password=default_password)
+        db.session.add(admin_user)
+        db.session.commit()
+
+        print("Usuario inicial creado: admin@admin.com / admin")
 def is_logged():
     return "user" in session
 
