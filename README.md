@@ -1,52 +1,75 @@
-# 💰 Gestor de Gastos - Versión Mejorada
+Gestor de Gastos
 
-Sistema completo de gestión de gastos con interfaz moderna y todas las funcionalidades ABM.
+Proyecto desarrollado como sistema de gestión de gastos personales, con interfaz web y funcionalidades ABM.
 
-## ✨ Características Nuevas
+Características
 
-### 🎨 UI Moderna y Atractiva
-- Diseño moderno con gradientes y animaciones
-- Interfaz responsive (funciona en móviles, tablets y desktop)
-- Colores vibrantes y profesionales
-- Iconos Font Awesome para mejor experiencia visual
-- Efectos hover y transiciones suaves
+Interfaz responsive (adaptable a celulares, tablets y computadoras)
 
-### 📋 ABM Completo de Categorías
-- ✅ Crear nuevas categorías con descripción
-- ✅ Editar categorías existentes
-- ✅ Eliminar categorías (con validación de gastos asociados)
-- ✅ Ver cantidad de gastos por categoría
+Colores definidos y consistentes
 
-### 👥 ABM Completo de Usuarios
-- ✅ Crear nuevos usuarios con email y contraseña
-- ✅ Editar información de usuarios
-- ✅ Cambiar contraseñas
-- ✅ Eliminar usuarios (excepto el usuario logueado)
-- ✅ Ver cantidad de gastos por usuario
+Uso de iconos de Font Awesome
 
-### ⚠️ Validaciones Mejoradas
-- ✅ **Validación obligatoria de categoría**: No se puede crear un gasto sin seleccionar categoría
-- ✅ Mensajes de error claros y visibles
-- ✅ Validación de montos positivos
-- ✅ Validación de usuarios y emails duplicados
-- ✅ Alertas en tiempo real con JavaScript
+Efectos de transición
 
-### 📊 Dashboard Mejorado
-- Estadísticas visuales con tarjetas de información
-- Total de gastos, categorías y suma total
-- Acciones rápidas
-- Información del sistema
+ABM de Categorías
 
-## 🚀 Instalación
+Crear nuevas categorías con su descripción
 
-### 1. Clonar el repositorio
-```bash
+Editar categorías existentes
+
+Eliminar categorías (validando si tienen gastos asociados)
+
+Mostrar la cantidad de gastos por categoría
+
+
+ABM de Usuarios
+
+Crear usuarios con email y contraseña
+
+Editar información de usuarios
+
+Cambiar contraseñas
+
+Eliminar usuarios (excepto el usuario que está logueado)
+
+Ver cantidad de gastos por usuario
+
+
+Validaciones
+
+Validación obligatoria de categoría: no se puede crear un gasto sin asignarle una
+
+Mensajes de error claros y visibles
+
+Validación de montos positivos
+
+Control de usuarios y correos duplicados
+
+Alertas en tiempo real con JavaScript
+
+
+Dashboard
+
+Tarjetas informativas con estadísticas
+
+Totales de gastos, categorías y suma general
+
+Accesos rápidos
+
+Información general del sistema
+
+
+Instalación
+
+Clonar el repositorio:
+
 git clone https://github.com/pauacosta/gestorGastosSeminario.git
 cd gestorGastosSeminario
-```
 
-### 2. Crear entorno virtual
-```bash
+
+Crear entorno virtual:
+
 python -m venv .venv
 
 # En Windows:
@@ -54,139 +77,132 @@ python -m venv .venv
 
 # En Linux/Mac:
 source .venv/bin/activate
-```
 
-### 3. Instalar dependencias
-```bash
+
+Instalar dependencias:
+
 pip install -r requirements.txt
-```
 
-### 4. Ejecutar la aplicación
-```bash
+
+Ejecutar la aplicación:
+
 python app.py
-```
 
-### 5. Abrir en el navegador
-```
+
+Abrir en el navegador:
+
 http://localhost:5000
-```
 
-## 🔐 Credenciales por Defecto
-
-```
-Usuario: admin
+Credenciales por Defecto
+Usuario: admin  
 Contraseña: admin123
-```
 
-## 📁 Estructura del Proyecto
-
-```
+Estructura del Proyecto
 gestorGastosSeminario/
 ├── app.py                    # Aplicación Flask principal
 ├── models.py                 # Modelos de base de datos
 ├── requirements.txt          # Dependencias
-├── database.db              # Base de datos SQLite (se crea automáticamente)
+├── database.db               # Base de datos SQLite (se genera automáticamente)
 ├── templates/
-│   ├── base.html           # Template base con navbar y estilos
-│   ├── login.html          # Página de login
-│   ├── home.html           # Dashboard principal
-│   ├── usuarios.html       # ABM de usuarios
-│   ├── categorias.html     # ABM de categorías
-│   ├── form.html           # Formulario de gastos
-│   └── list.html           # Lista de gastos
+│   ├── base.html             # Template base con navbar y estilos
+│   ├── login.html            # Página de inicio de sesión
+│   ├── home.html             # Dashboard principal
+│   ├── usuarios.html         # ABM de usuarios
+│   ├── categorias.html       # ABM de categorías
+│   ├── form.html             # Formulario de gastos
+│   └── list.html             # Lista de gastos
 └── README.md
-```
 
-## 🎯 Funcionalidades Principales
+Funcionalidades Principales
+Gestión de Usuarios
 
-### 1. Gestión de Usuarios
-- Ver lista completa de usuarios
-- Crear nuevos usuarios con validación
-- Editar usuarios existentes
-- Eliminar usuarios (con protección del usuario actual)
-- Ver estadísticas de gastos por usuario
+Ver lista completa de usuarios
 
-### 2. Gestión de Categorías
-- Ver todas las categorías con descripciones
-- Crear categorías con nombre único
-- Editar categorías existentes
-- Eliminar categorías vacías
-- Validación de categorías con gastos asociados
+Crear y editar usuarios
 
-### 3. Gestión de Gastos
-- **Validación obligatoria de categoría**
-- Formulario intuitivo con ayudas visuales
-- Lista completa con detalles
-- Modal de detalles expandido
-- Filtrado por fecha (más recientes primero)
-- Suma total automática
+Eliminar usuarios (protegido para el usuario actual)
 
-### 4. Dashboard
-- Estadísticas visuales
-- Accesos rápidos
-- Información del sistema
-- Consejos útiles
+Ver estadísticas de gastos por usuario
 
-## 🔒 Seguridad
+Gestión de Categorías
 
-- Contraseñas hasheadas con Werkzeug
-- Sesiones seguras con Flask
-- Validación en frontend y backend
-- Protección contra usuarios duplicados
-- Control de permisos (no se puede eliminar el usuario logueado)
+Listado completo de categorías
 
-## 💡 Mejoras Implementadas
+Crear, editar y eliminar (solo si no tienen gastos)
 
-### UI/UX
-- ✅ Gradientes modernos en toda la interfaz
-- ✅ Animaciones suaves al cargar elementos
-- ✅ Cards con efecto hover
-- ✅ Badges y etiquetas coloridas
-- ✅ Modals centrados y estilizados
-- ✅ Formularios con iconos y ayudas visuales
-- ✅ Responsive design completo
+Validación de categorías con gastos asociados
 
-### Funcionalidad
-- ✅ Validación de categoría obligatoria con mensaje de error
-- ✅ ABM completo de usuarios
-- ✅ ABM completo de categorías
-- ✅ Validaciones robustas en todos los formularios
-- ✅ Mensajes flash informativos
-- ✅ Confirmaciones antes de eliminar
-- ✅ Modals para crear/editar sin cambiar de página
+Gestión de Gastos
 
-### Base de Datos
-- ✅ Relaciones entre tablas correctas
-- ✅ Cascade delete para gastos de usuarios
-- ✅ Validación de integridad referencial
-- ✅ Timestamps automáticos
+Formulario validado con selección obligatoria de categoría
 
-## 📝 Notas Importantes
+Listado con detalles y filtrado por fecha
 
-1. **Categoría Obligatoria**: El sistema no permite crear gastos sin categoría. Si no hay categorías, el botón de guardar estará deshabilitado.
+Modal con información ampliada
 
-2. **Usuarios**: No puedes eliminar tu propio usuario mientras estés logueado.
+Cálculo automático del total
 
-3. **Categorías**: No puedes eliminar categorías que tengan gastos asociados.
+Dashboard
 
-4. **Base de Datos**: Se crea automáticamente al ejecutar la aplicación por primera vez.
+Tarjetas informativas con estadísticas
 
-## 🎨 Paleta de Colores
+Accesos rápidos a las secciones principales
 
-- **Primary**: #6366f1 (Índigo)
-- **Secondary**: #8b5cf6 (Púrpura)
-- **Success**: #10b981 (Verde)
-- **Danger**: #ef4444 (Rojo)
-- **Warning**: #f59e0b (Ámbar)
+Información del sistema
 
-## 🤝 Contribuir
+Seguridad
 
-Este proyecto es de código abierto. Siéntete libre de hacer fork y contribuir.
+Contraseñas encriptadas con Werkzeug
 
-## 📄 Licencia
+Sesiones seguras con Flask
 
-MIT License
+Validaciones tanto en frontend como en backend
 
----
+Prevención de duplicados
 
-**Desarrollado con ❤️ usando Flask, Bootstrap 5 y Font Awesome**
+Control de permisos y restricciones básicas
+
+Mejoras Implementadas
+Interfaz y Experiencia de Usuario
+
+Gradientes y animaciones suaves
+
+Tarjetas con efectos hover
+
+Formularios claros con iconos y ayudas visuales
+
+Diseño completamente adaptable
+
+Funcionalidad
+
+ABM de usuarios y categorías completo
+
+Validaciones reforzadas en formularios
+
+Mensajes informativos y de confirmación
+
+Modales para alta y edición sin recargar la página
+
+Base de Datos
+
+Relaciones correctas entre tablas
+
+Eliminación en cascada de gastos de usuarios
+
+Control de integridad referencial
+
+Campos automáticos de fecha y hora
+
+
+Notas Importantes
+
+No se pueden crear gastos sin una categoría seleccionada.
+
+El usuario actual no puede eliminarse mientras está logueado.
+
+No se pueden eliminar categorías que tengan gastos asociados.
+
+La base de datos se genera automáticamente al ejecutar la aplicación por primera vez.
+
+
+
