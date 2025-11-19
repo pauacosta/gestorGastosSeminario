@@ -84,7 +84,9 @@ Credenciales por Defecto
 Usuario: admin  
 Contraseña: admin123
 
-Estructura del Proyecto
+## Estructura del Proyecto
+
+```
 gestorGastosSeminario/
 ├── app.py                    # Aplicación Flask principal
 ├── models.py                 # Modelos de base de datos
@@ -99,6 +101,7 @@ gestorGastosSeminario/
 │   ├── form.html             # Formulario de gastos
 │   └── list.html             # Lista de gastos
 └── README.md
+```
 
 Funcionalidades Principales
 Gestión de Usuarios
